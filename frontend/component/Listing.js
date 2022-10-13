@@ -4,6 +4,51 @@ import styles from "../styles/Listing.module.css"
 import { formatEther } from "ethers.lib.utils"
 
 export default function Listing(props) {
+    const [imageURI, setImageURI] = useState("");
+    const [name, setName] = useState("");
+
+    const [loading, setLoading] = useState(true);
+
+    // get the provider, connected address and a contract instance
+    // for the nft contract using wagmi
+    const provider = useProvider();
+    const { address } = useAccount();
+    const ERC721Contract = useContract({
+        addressOrName: props.nftAddress,
+        contractInterface: erc721ABI,
+        signerOrProvider: provider,
+    });
+
+    //check if the NFT seller is the connected user 
+    const isOwner = address.toLowerCase() === props.seller.toLowerCase();
+
+    // fetch NFT details
+    async function fetchNFTDetails() {
+        try {
+            let tokenURI = await ERC721Contract.tokenURI(0);
+            tokenURI = tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/");
+
+            const metadata = await fetch(tokenURI);
+            const metadataJSON = await metadata.json();
+
+            let image = metadataJSON.imageUrl;
+
+            image = image.replace("ipfs://", "https://ipfs.io/ipfs/");
+
+            setName(metadataJSON.name);
+            setImageURI(image);
+            setLoading(false);
+        } catch (error) {
+            console.error(error)
+            setLoading(false);
+            
+        }
+    }
+
+    useEffect(() => {
+        fetchNFTDetails();
+    }, []);
+
     return(
         <div>
             {loading ? (

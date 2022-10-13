@@ -1,8 +1,46 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
+import { useEffect, useState } from 'react'
+import Navbar from '../component/Navbar'
+import Listing from '../component/Listing'
+import { createClient } from 'urql'
+import Link from 'next/link'
+import { SUBGRAPH_URL } from '../constants'
+import { useAccount } from 'wagmi'
 
 export default function Home() {
+  const [listings, setListings] = useState();
+  const [loading, setLoading] = useState(false);
+
+  const [isConnected, setIsConnected] = useAccount();
+
+  const fetchListings = async () => {
+    setLoading(true);
+    const listingsQuery = `
+      query ListingsQuery {
+        listingEntities {
+          id
+          nftAddress
+          tokenId
+          price
+          seller
+          buyer
+        }
+      }
+    `;
+
+    const urqlClient = createClient({
+      
+    })
+  }
+
+  useEffect(() => {
+    if(isConnected) {
+      fetchListings();
+    }
+  }, [])
+
   return (
     <div className={styles.container}>
       <Head>
