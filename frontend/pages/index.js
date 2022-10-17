@@ -16,6 +16,7 @@ export default function Home() {
 
   async function fetchListings() {
     setLoading(true);
+    // the graphQL query to fetch all listings
     const listingsQuery = `
       query ListingsQuery {
         listingEntities {
@@ -53,9 +54,9 @@ export default function Home() {
   return (
     <>
       <Navbar />
-
       {loading && isConnected && <span>Loading...</span>}
-
+      
+      {/* render the listings */}
       <div className={styles.container}>
         {!loading && listings && listings.map((listing) => {
           return (
