@@ -1,4 +1,4 @@
-import { Contract, ContractFactory } from "ethers"
+import { Contract } from "ethers"
 import { isAddress, parseEther } from "ethers/lib/utils"
 import Link from "next/link"
 import { useState } from "react"
@@ -17,6 +17,7 @@ export default function Create() {
 
     // get signer from wagmi
     const { data: signer } = useSigner()
+    const signerObject = useSigner();
 
     async function handleCreateListing() {
         setLoading(true)
@@ -40,10 +41,10 @@ export default function Create() {
     }
 
     async function requestApproval() {
+        console.log("signer object", signerObject)
         const address = await signer.getAddress()
-
         const ERC721Contract = new Contract(nftAddress, erc721ABI, signer)
-        
+    
         // make sure user is the owner of the NFT 
         const tokenOwner = await ERC721Contract.ownerOf(tokenId)
         if(tokenOwner.toLowerCase() !== address.toLowerCase()) {
@@ -51,7 +52,7 @@ export default function Create() {
         }
 
         // check if user already give approval to markeplace
-        const isApproved = await ERC721Contract.isApproveForAll(
+        const isApproved = await ERC721Contract.isApprovedForAll(
             address,
             MARKETPLACE_ADDRESS
         )
@@ -64,7 +65,7 @@ export default function Create() {
                 true
             )
             await approvalTxn.wait()
-        }
+        }            
     }
 
 
@@ -112,7 +113,7 @@ export default function Create() {
                         }
                     }} 
                 />
-                
+
                 {/* button to create the listing */}
                 <button onClick={handleCreateListing} disabled={loading}>
                     {loading ? "Loading..." : "Create"}
